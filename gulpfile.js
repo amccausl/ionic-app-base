@@ -7,11 +7,24 @@ var minifyCss = require('gulp-minify-css');
 var rename = require('gulp-rename');
 var sh = require('shelljs');
 
+var _         = require('underscore');
+var html2js   = require('gulp-ng-html2js');
+var jade      = require('gulp-jade');
+var jshint    = require('gulp-jshint');
+var uglify    = require('gulp-uglifyjs');
+
+// @todo add sizing as separate task
+// @todo update scss generation
+// @todo should pipe app-templates into app-scripts
+
 var paths = {
-  sass: ['./scss/**/*.scss']
+  gulp: ['./gulpfile.js'],
+  js  : ['./src/app/*.js', './src/app/**/*.js', './src/common/**/*.js'],
+  jade: ['./src/app/**/*.jade'],
+  sass: ['./src/styles/**/*.scss']
 };
 
-gulp.task('default', ['sass']);
+gulp.task('default', ['sass', 'lint', 'app-templates', 'app-scripts']);
 
 gulp.task('sass', function(done) {
   gulp.src('./scss/ionic.app.scss')
@@ -24,7 +37,42 @@ gulp.task('sass', function(done) {
     }))
     .pipe(rename({ extname: '.min.css' }))
     .pipe(gulp.dest('./www/css/'))
-    .on('end', done);
+    .on('end', done)
+    ;
+});
+
+gulp.task('lint', function() {
+  return gulp.src( _.flatten( [ paths.gulp, paths.js ] ) )
+    .pipe( jshint() )
+    .pipe( jshint.reporter('jshint-stylish') );
+});
+
+gulp.task('app-scripts', function() {
+  return gulp.src( paths.js )
+    .pipe( concat('app.js') )
+    .pipe( gulp.dest('./www/js/') )
+    ;
+});
+
+gulp.task('app-templates', function() {
+  return gulp.src( paths.jade )
+    .pipe( jade({
+      locals: {},
+      pretty: true,
+    }))
+    .pipe( gulp.dest('./www/') )
+    // @todo should minify html here
+    .pipe( html2js({
+        moduleName: 'app-templates',
+        prefix: '',
+    }))
+    .pipe( concat('templates.js' ) )
+    .pipe( gulp.dest( './www/js' ) )
+    .pipe( uglify( 'templates.min.js', {
+      outSourceMap: true,
+    }))
+    .pipe( gulp.dest('./www/js') )
+    ;
 });
 
 gulp.task('watch', function() {
