@@ -1,7 +1,7 @@
 angular.module( 'app.about', [
 ])
 
-.config(function config( $stateProvider ) {
+.config( function( $stateProvider ) {
   $stateProvider
     .state( 'about', {
       url: '/about',
