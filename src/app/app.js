@@ -6,6 +6,9 @@
 angular.module('app', [
   'ionic',
 
+  'app.index',
+  'app.about',
+
   'app-templates'
 ])
 
@@ -39,7 +42,7 @@ angular.module('app', [
   });
 })
 
-.config( function( $compileProvider, $httpProvider, $stateProvider, $urlRouterProvider, config ) {
+.config( function( $compileProvider, $httpProvider, $stateProvider, $urlRouterProvider ) {
 
   // Whitelist "app:/" protocol for firefox packaged app
   // https://developer.mozilla.org/en-US/Apps/Tools_and_frameworks/common_libraries_and_frameworks
@@ -47,7 +50,7 @@ angular.module('app', [
   $compileProvider.imgSrcSanitizationWhitelist( /^\s*(https?|ftp|app|file|tel|market):/ );
 
   // @todo should be compiled
-  $httpProvider.defaults.headers.common.Version = 'v' + config.version;
+  $httpProvider.defaults.headers.common.Version = 'v1.0.0';
 
   // Setup root app
   $stateProvider

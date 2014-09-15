@@ -139,9 +139,9 @@ gulp.task('app-html', function() {
 gulp.task('watch', function() {
   gulp.watch( paths.gulp, ['reload'] );
   gulp.watch( paths.js, ['lint', 'app-scripts-dev'] );
+  gulp.watch( paths.jade_tpl, ['app-scripts-dev'] );
   gulp.watch( paths.sass, ['app-styles'] );
   gulp.watch( paths.jade, ['app-html'] );
-  gulp.watch( paths.jade_tpl, ['app-templates'] );
 });
 
 gulp.task('install', ['git-check'], function() {
