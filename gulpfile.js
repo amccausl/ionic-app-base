@@ -42,9 +42,9 @@ var paths = {
 };
 
 gulp.task('default', ['dev']);
-gulp.task('dev', ['app-fonts', 'app-assets', 'app-styles', 'lint', 'app-jade', 'app-templates', 'lib-scripts', 'app-scripts-dev']);
-gulp.task('stg', ['app-fonts', 'app-assets', 'app-styles', 'lint', 'app-jade', 'app-templates', 'lib-scripts', 'app-scripts-stg']);
-gulp.task('prd', ['app-fonts', 'app-assets', 'app-styles', 'lint', 'app-jade', 'app-templates', 'lib-scripts', 'app-scripts-prd']);
+gulp.task('dev', ['app-fonts', 'app-assets', 'app-styles', 'lint', 'app-html', 'app-templates', 'lib-scripts', 'app-scripts-dev']);
+gulp.task('stg', ['app-fonts', 'app-assets', 'app-styles', 'lint', 'app-html', 'app-templates', 'lib-scripts', 'app-scripts-stg']);
+gulp.task('prd', ['app-fonts', 'app-assets', 'app-styles', 'lint', 'app-html', 'app-templates', 'lib-scripts', 'app-scripts-prd']);
 
 gulp.task('app-fonts', function() {
   return gulp.src( paths.fonts )
@@ -84,6 +84,7 @@ app_scripts = function( env ) {
     return gulp.src( paths.js )
       .pipe( preprocess({ context: { NODE_ENV: env } }) )
       .pipe( concat('app.js') )
+      .pipe( gulp.dest( dist_dir + 'js/' ) )
       .pipe( ngAnnotate() )
       .pipe( uglify( 'app.min.js', {
         outSourceMap: true,
@@ -100,6 +101,11 @@ gulp.task('app-scripts-prd', app_scripts( 'production' ));
 gulp.task('lib-scripts', function() {
   return gulp.src( paths.libs.js )
     .pipe( concat('libs.js') )
+    .pipe( gulp.dest( dist_dir + 'js/' ) )
+    .pipe( ngAnnotate() )
+    .pipe( uglify( 'libs.min.js', {
+      outSourceMap: true,
+    }))
     .pipe( gulp.dest( dist_dir + 'js/' ) )
     ;
 });
@@ -125,7 +131,7 @@ gulp.task('app-templates', function() {
     ;
 });
 
-gulp.task('app-jade', function() {
+gulp.task('app-html', function() {
   return gulp.src( paths.jade )
     .pipe( jade({
       locals: {},
@@ -136,7 +142,10 @@ gulp.task('app-jade', function() {
 });
 
 gulp.task('watch', function() {
-  gulp.watch(paths.sass, ['app-styles']);
+  gulp.watch( paths.js, ['lint', 'app-scripts-dev'] );
+  gulp.watch( paths.sass, ['app-styles'] );
+  gulp.watch( paths.jade, ['app-html'] );
+  gulp.watch( paths.jade_tpl, ['app-templates'] );
 });
 
 gulp.task('install', ['git-check'], function() {

@@ -8,7 +8,7 @@ angular.module( 'app.about', [
       data: { title: 'About' },
       views: {
         content: {
-          templateUrl: 'tpl/about/about.tpl.html',
+          templateUrl: 'about/about.tpl.html',
           controller: function() {
           }
         }

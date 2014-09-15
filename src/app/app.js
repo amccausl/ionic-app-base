@@ -37,4 +37,31 @@ angular.module('app', [
       StatusBar.styleDefault();
     }
   });
-});
+})
+
+.config( function( $compileProvider, $httpProvider, $stateProvider, $urlRouterProvider, config ) {
+
+  // Whitelist "app:/" protocol for firefox packaged app
+  // https://developer.mozilla.org/en-US/Apps/Tools_and_frameworks/common_libraries_and_frameworks
+  $compileProvider.aHrefSanitizationWhitelist( /^\s*(https?|ftp|mailto|app|file|tel|market):/ );
+  $compileProvider.imgSrcSanitizationWhitelist( /^\s*(https?|ftp|app|file|tel|market):/ );
+
+  // @todo should be compiled
+  $httpProvider.defaults.headers.common.Version = 'v' + config.version;
+
+  // Setup root app
+  $stateProvider
+    .state( 'app', {
+      url: '/app',
+      abstract: true,
+      templateUrl: 'app.tpl.html',
+      controller: function() {
+      }
+    })
+    ;
+
+  // if none of the above states are matched, use this as the fallback
+  $urlRouterProvider.otherwise('/app');
+})
+
+;
