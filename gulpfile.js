@@ -14,12 +14,13 @@ var jshint      = require('gulp-jshint');
 var merge       = require('merge-stream');
 var ngAnnotate  = require('gulp-ng-annotate');
 var preprocess  = require('gulp-preprocess');
+var size        = require('gulp-size');
 var spawn       = require('child_process').spawn;
 var uglify      = require('gulp-uglifyjs');
+var wrap        = require('gulp-wrap');
 
-// @todo add sizing as separate task
 // @todo update scss generation
-// @todo should handle app-templates and app-script better
+// @todo should handle app-script better
 
 var dist_dir = './www/';
 
@@ -88,18 +89,27 @@ app_scripts = function( env ) {
         locals: {},
         pretty: false,
       }))
-      .pipe( gulp.dest('./www/') )
       .pipe( html2js({
         moduleName: 'app-templates',
         prefix: '',
+        declareModule: false,
+        template: "  $templateCache.put('<%= template.url %>', '<%= template.escapedContent %>');",
+      }))
+      .pipe( concat( 'templates.js' ) )
+      .pipe( wrap( "angular.module('app-templates',[]).run(['$templateCache', function($templateCache) {\n<%= contents %>\n}]);" ) )
+      .pipe( size({
+        showFiles: true,
       }))
       ;
 
     return merge( templates_js, gulp.src( paths.js ) )
       .pipe( preprocess({ context: { NODE_ENV: env } }) )
-      .pipe( concat('app.js') )
-      .pipe( gulp.dest( dist_dir + 'js/' ) )
       .pipe( ngAnnotate() )
+      .pipe( concat('app.js') )
+      .pipe( size({
+        showFiles: true,
+      }))
+      .pipe( gulp.dest( dist_dir + 'js/' ) )
       .pipe( uglify( 'app.min.js', {
         outSourceMap: true,
       }))
@@ -115,6 +125,9 @@ gulp.task('app-scripts-prd', app_scripts( 'production' ));
 gulp.task('lib-scripts', function() {
   return gulp.src( paths.libs.js )
     .pipe( concat('libs.js') )
+    .pipe( size({
+      showFiles: true,
+    }))
     .pipe( gulp.dest( dist_dir + 'js/' ) )
     ;
 });
